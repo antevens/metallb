@@ -101,6 +101,9 @@
         "nodeSelector": {
           "type": "object"
         },
+        "matchExpression": {
+          "type": "object"
+        },
         "tolerations": {
           "type": "array",
           "items": {

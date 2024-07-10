@@ -2,13 +2,6 @@
 {{- if or .Values.frrk8s.enabled .Values.frrk8s.external }}
 {{- fail "speaker.frr.enabled and frrk8s.enabled / external are mutually exclusive!" }}
 {{- end }}
-{{- end }}
-
-{{- if and .Values.frrk8s.enabled .Values.frrk8s.external }}
-{{- fail "frrk8s.enabled frrk8s.external are mutually exclusive!" }}
-{{- end }}
-
-{{- if .Values.speaker.frr.enabled }}
 
 # FRR expects to have these files owned by frr:frr on startup.
 # Having them in a ConfigMap allows us to modify behaviors: for example enabling more daemons on startup.
@@ -134,6 +127,10 @@ spec:
     matchLabels:
       {{- include "metallb.selectorLabels" . | nindent 6 }}
       app.kubernetes.io/component: speaker
+    {{- with .Values.speaker.matchExpressions }}
+    matchExpressions:
+      {{- toYaml . | nindent 8 }}
+    {{- end }}
   template:
     metadata:
       {{- if or .Values.prometheus.scrapeAnnotations .Values.speaker.podAnnotations }}

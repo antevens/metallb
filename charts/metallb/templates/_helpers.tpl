@@ -112,3 +112,29 @@ Create the name of the settings Secret to use.
 {{- end }}
 {{- end }}
 
+{{/*
+Returns a string representing the Kubernetes platform e.g. openshift, microk8s, tanzu, etc
+*/}}
+{{- define "metallb.k8sPlatform" }}
+  {{- if ( dig "global" "k8sPlatform" false .Values.AsMap ) }}
+    {{- .Values.global.k8sPlatform }}
+  {{- else }}
+    {{- $nodes := lookup "v1" "Node" "" "" }}
+    {{- if $nodes }}
+      {{- $node := first $nodes.items }}
+      {{- if ( dig "metadata" "labels" "node.openshift.io/os_id" false $node ) }}
+        {{- "openshift" }}
+      {{- else if ( dig "metadata" "labels" "microk8s.io/cluster" false $node ) }}
+        {{- "microk8s" }}
+      {{- else if ( dig "metadata" "labels" "eks.amazonaws.com/nodegroup" false $node ) }}
+        {{- "eks" }}
+      {{- else if ( dig "metadata" "labels" "node.cluster.x-k8s.io/esxi-host" false $node ) }}
+        {{- "tanzu" }}
+      {{- else }}
+        {{- "kubernetes" }}
+      {{- end }}
+    {{- else }}
+        {{- "kubernetes" }}
+    {{- end }}
+  {{- end }}
+{{- end }}
